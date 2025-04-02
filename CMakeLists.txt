@@ -18,7 +18,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(raylib)
 
-add_executable(spin_sat_controller main.c)
+add_executable(spin_sat_controller main.c error_handler.c)
 
 target_compile_options(spin_sat_controller PUBLIC)
 target_include_directories(spin_sat_controller PUBLIC .)

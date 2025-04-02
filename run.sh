@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Remove existing build directory if it exists
-rm -rf build
-
 # Create and enter build directory
 mkdir -p build
 cd build
