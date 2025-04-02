@@ -6,8 +6,31 @@
 #define CLAY_IMPLEMENTATION
 #include "clay.h"
 
+#define COLOR_WHITE {245, 245, 245, 255}
+#define COLOR_GRAY {200, 200, 200, 255}
+#define COLOR_BLUE {150, 150, 255, 255}
 const float screenWidth = 1280.0f;
 const float screenHeight = 768.0f;
+
+Clay_LayoutConfig defaultLayoutStyle = (Clay_LayoutConfig){
+    .layoutDirection = CLAY_TOP_TO_BOTTOM,
+    .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)},
+    .padding = {16, 16, 16, 16},
+    .childGap = 16,
+};
+
+/// @brief Creates a Clay_LayoutConfig with a configurable height
+/// @param height The desired height for the layout
+/// @return Clay_LayoutConfig with the specified height
+Clay_LayoutConfig CreateLayoutConfigWithHeight(float height)
+{
+    return (Clay_LayoutConfig){
+        .layoutDirection = CLAY_TOP_TO_BOTTOM,
+        .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(height)},
+        .padding = {16, 16, 16, 16},
+        .childGap = 16,
+    };
+}
 
 /// @brief Creates the layout for the UI within a Clay_BeginLayout/Clay_EndLayout boundry.
 /// @return Clay_RenderCommandArray
@@ -15,10 +38,10 @@ Clay_RenderCommandArray CreateLayout(void)
 {
     Clay_BeginLayout();
 
-    CLAY({.id = CLAY_ID("OuterContainer"), .layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM, .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}, .padding = {16, 16, 16, 16}, .childGap = 16}, .backgroundColor = {245, 245, 245, 255}})
+    CLAY({.id = CLAY_ID("OuterContainer"), .layout = defaultLayoutStyle, .backgroundColor = COLOR_WHITE})
     {
-        CLAY({.id = CLAY_ID("TopHeaderBar"), .layout = {.layoutDirection = CLAY_TOP_TO_BOTTOM, .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_FIXED(64)}, .padding = {16, 16, 16, 16}, .childGap = 16}, .backgroundColor = {200, 200, 200, 255}, .cornerRadius = {16, 16, 16, 16}}) {}
-        CLAY({.id = CLAY_ID("MainBody"), .layout = {.layoutDirection = CLAY_LEFT_TO_RIGHT, .sizing = {.width = CLAY_SIZING_GROW(0), .height = CLAY_SIZING_GROW(0)}, .padding = {16, 16, 16, 16}, .childGap = 16}, .backgroundColor = {150, 150, 255, 255}}) {}
+        CLAY({.id = CLAY_ID("TopHeaderBar"), .layout = CreateLayoutConfigWithHeight(64), .backgroundColor = COLOR_GRAY, .cornerRadius = {16, 16, 16, 16}}) {}
+        CLAY({.id = CLAY_ID("MainBody"), .layout = defaultLayoutStyle, .backgroundColor = COLOR_BLUE}) {}
     }
 
     return Clay_EndLayout();
