@@ -108,7 +108,6 @@ int main(void) {
     Clay_SetMeasureTextFunction(Raylib_MeasureText, fonts);
 
     initBLE();
-    startScanning(); // Look for SpinSat BLE signature
 
     while (!WindowShouldClose()) {
         Clay_RenderCommandArray renderCommands = CreateLayout();
