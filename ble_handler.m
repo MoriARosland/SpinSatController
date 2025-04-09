@@ -87,6 +87,16 @@ didFailToConnectPeripheral:(CBPeripheral *)peripheral
     bleState = 0;
 }
 
+- (void)centralManager:(CBCentralManager *)central
+didDisconnectPeripheral:(CBPeripheral *)peripheral
+                 error:(NSError *)error {
+    NSLog(@"Disconnected from %@: %@", peripheral.name, error ? error : @"No error");
+    bleState = 0;
+    
+    // Optionally restart scanning after disconnect
+    // [self startScanning];
+}
+
 @end
 
 static BLEHandler *globalBLEHandler = nil;
