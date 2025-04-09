@@ -1,15 +1,11 @@
-// ble_handler.m
 #import <CoreBluetooth/CoreBluetooth.h>
 #import "ble_handler.h"
 
-// Global BLE state variable
 int bleState = 0;
 
 @interface BLEHandler : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
-
 @property (strong, nonatomic) CBCentralManager *centralManager;
 @property (strong, nonatomic) CBPeripheral *targetPeripheral;
-
 @end
 
 @implementation BLEHandler
@@ -17,29 +13,49 @@ int bleState = 0;
 - (instancetype)init {
     self = [super init];
     if (self) {
-        // Initialize the central manager with the main queue
         _centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
+        NSLog(@"BLE Initialized.");
     }
     return self;
 }
 
 - (void)startScanning {
+    NSLog(@"Attempting Scan...");
+    NSLog(@"BT state: %ld", (long)self.centralManager.state);
     if (self.centralManager.state == CBManagerStatePoweredOn) {
-        bleState = 1; // Scanning
-        // Scan for all peripherals; optionally, specify service UUIDs if known
+        bleState = 1;
         [self.centralManager scanForPeripheralsWithServices:nil options:nil];
+        NSLog(@"Scan Successful");
+    } else {
+        NSLog(@"Scan Failed - Bluetooth not powered on. State: %ld", (long)self.centralManager.state);
     }
 }
-
-// CBCentralManagerDelegate methods
 
 - (void)centralManagerDidUpdateState:(CBCentralManager *)central {
     switch (central.state) {
         case CBManagerStatePoweredOn:
-            // Bluetooth is on; ready to scan
+            NSLog(@"Bluetooth is Powered On");
+            [self startScanning]; // Auto-start scan when ready
+            break;
+        case CBManagerStateUnauthorized:
+            NSLog(@"Bluetooth Unauthorized - Check app permissions");
+            bleState = 0;
+            break;
+        case CBManagerStatePoweredOff:
+            NSLog(@"Bluetooth is Powered Off");
+            bleState = 0;
+            break;
+        case CBManagerStateUnsupported:
+            NSLog(@"Bluetooth Unsupported");
+            bleState = 0;
+            break;
+        case CBManagerStateUnknown:
+            NSLog(@"Bluetooth State Unknown");
+            bleState = 0;
             break;
         default:
-            bleState = 0; // Reset to idle if Bluetooth is off or unsupported
+            NSLog(@"Unknown Bluetooth State: %ld", (long)central.state);
+            bleState = 0;
             break;
     }
 }
@@ -48,8 +64,9 @@ int bleState = 0;
  didDiscoverPeripheral:(CBPeripheral *)peripheral
      advertisementData:(NSDictionary *)advertisementData
                   RSSI:(NSNumber *)RSSI {
-    // Check if this is the nRF52840 by name (adjust as needed)
-    if ([peripheral.name containsString:@"SpinSat"]) { // Assuming name contains "nRF52840"
+    NSLog(@"Discovered: %@, RSSI: %@", peripheral.name, RSSI);
+    if ([peripheral.name containsString:@"Spinsat"]) {
+        NSLog(@"Found SpinSat: %@", peripheral.name);
         self.targetPeripheral = peripheral;
         peripheral.delegate = self;
         [self.centralManager stopScan];
@@ -59,19 +76,19 @@ int bleState = 0;
 
 - (void)centralManager:(CBCentralManager *)central
   didConnectPeripheral:(CBPeripheral *)peripheral {
-    bleState = 2; // Connected
-    // Optionally, discover services: [peripheral discoverServices:nil];
+    NSLog(@"Connected to %@", peripheral.name);
+    bleState = 2;
 }
 
 - (void)centralManager:(CBCentralManager *)central
 didFailToConnectPeripheral:(CBPeripheral *)peripheral
                  error:(NSError *)error {
-    bleState = 0; // Back to idle on failure
+    NSLog(@"Failed to connect to %@: %@", peripheral.name, error);
+    bleState = 0;
 }
 
 @end
 
-// C interface functions
 static BLEHandler *globalBLEHandler = nil;
 
 void initBLE(void) {

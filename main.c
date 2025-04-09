@@ -108,10 +108,7 @@ int main(void) {
     Clay_SetMeasureTextFunction(Raylib_MeasureText, fonts);
 
     initBLE();
-    printf("Bluetooth initialized\n");
-
     startScanning(); // Look for SpinSat BLE signature
-    printf("Scanning for devices...\n");
 
     while (!WindowShouldClose()) {
         Clay_RenderCommandArray renderCommands = CreateLayout();
