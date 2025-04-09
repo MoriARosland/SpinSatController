@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.27)
-project(spin_sat_controller C)
+project(spin_sat_controller LANGUAGES C OBJC)
 set(CMAKE_C_STANDARD 99)
 
 # Adding Raylib
@@ -18,12 +18,21 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(raylib)
 
-add_executable(spin_sat_controller main.c error_handler.c)
+add_executable(spin_sat_controller main.c error_handler.c ble_handler.m)
 
 target_compile_options(spin_sat_controller PUBLIC)
 target_include_directories(spin_sat_controller PUBLIC .)
 
 target_link_libraries(spin_sat_controller PUBLIC raylib)
+
+# Link frameworks on macOS
+if(APPLE)
+    target_link_libraries(spin_sat_controller PUBLIC
+        "-framework CoreBluetooth"
+        "-framework Foundation"
+    )
+endif()
+
 if(MSVC)
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
 else()
